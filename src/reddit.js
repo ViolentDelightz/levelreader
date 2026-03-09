@@ -25,7 +25,7 @@ export async function getCuteUrl() {
   const data = await response.json();
   const posts = data.data.children
     .map((post) => {
-      if (post.is_gallery) {
+      if (post.data?.is_gallery) {
         return '';
       }
       return (
@@ -35,9 +35,11 @@ export async function getCuteUrl() {
       );
     })
     .filter((post) => !!post);
+  if (!posts.length) {
+    return 'https://i.imgur.com/removed.png';
+  }
   const randomIndex = Math.floor(Math.random() * posts.length);
-  const randomPost = posts[randomIndex];
-  return randomPost;
+  return posts[randomIndex];
 }
 
 export const redditUrl = 'https://www.reddit.com/r/aww/hot.json';
