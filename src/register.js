@@ -14,11 +14,13 @@ const token = process.env.DISCORD_TOKEN;
 const applicationId = process.env.DISCORD_APPLICATION_ID;
 
 if (!token) {
-  throw new Error('The DISCORD_TOKEN environment variable is required.');
+  throw new Error(
+    'The DISCORD_TOKEN environment variable is required. Make sure to set it in your .dev.vars file.',
+  );
 }
 if (!applicationId) {
   throw new Error(
-    'The DISCORD_APPLICATION_ID environment variable is required.',
+    'The DISCORD_APPLICATION_ID environment variable is required. Make sure to set it in your .dev.vars file.',
   );
 }
 

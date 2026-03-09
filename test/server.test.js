@@ -87,7 +87,19 @@ describe('Server', () => {
         .resolves({
           status: 200,
           ok: true,
-          json: sinon.fake.resolves({ data: { children: [] } }),
+          json: sinon.fake.resolves({
+            data: {
+              children: [
+                {
+                  data: {
+                    url: 'https://i.redd.it/cute-cat.jpg',
+                    is_gallery: false,
+                    over_18: false,
+                  },
+                },
+              ],
+            },
+          }),
         });
 
       const response = await server.fetch(request, env);
@@ -152,7 +164,7 @@ describe('Server', () => {
       const response = await server.fetch(request, {});
       const body = await response.json();
       expect(response.status).to.equal(400);
-      expect(body.error).to.equal('Unknown Type');
+      expect(body.error).to.equal('Unknown command');
     });
   });
 

@@ -4,13 +4,13 @@
 
 import { AutoRouter } from 'itty-router';
 import {
+  InteractionResponseFlags,
   InteractionResponseType,
   InteractionType,
   verifyKey,
 } from 'discord-interactions';
 import { AWW_COMMAND, INVITE_COMMAND } from './commands.js';
 import { getCuteUrl } from './reddit.js';
-import { InteractionResponseFlags } from 'discord-interactions';
 
 class JsonResponse extends Response {
   constructor(body, init) {
@@ -59,13 +59,24 @@ router.post('/', async (request, env) => {
     // Most user commands will come as `APPLICATION_COMMAND`.
     switch (interaction.data.name.toLowerCase()) {
       case AWW_COMMAND.name.toLowerCase(): {
-        const cuteUrl = await getCuteUrl();
-        return new JsonResponse({
-          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-          data: {
-            content: cuteUrl,
-          },
-        });
+        try {
+          const cuteUrl = await getCuteUrl();
+          return new JsonResponse({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: {
+              content: cuteUrl,
+            },
+          });
+        } catch (err) {
+          console.error('Error fetching cute URL:', err);
+          return new JsonResponse({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: {
+              content: 'Could not fetch a cute image right now. Try again!',
+              flags: InteractionResponseFlags.EPHEMERAL,
+            },
+          });
+        }
       }
       case INVITE_COMMAND.name.toLowerCase(): {
         const applicationId = env.DISCORD_APPLICATION_ID;
@@ -79,12 +90,15 @@ router.post('/', async (request, env) => {
         });
       }
       default:
-        return new JsonResponse({ error: 'Unknown Type' }, { status: 400 });
+        return new JsonResponse({ error: 'Unknown command' }, { status: 400 });
     }
   }
 
-  console.error('Unknown Type');
-  return new JsonResponse({ error: 'Unknown Type' }, { status: 400 });
+  console.error('Unknown interaction type:', interaction.type);
+  return new JsonResponse(
+    { error: 'Unknown interaction type' },
+    { status: 400 },
+  );
 });
 router.all('*', () => new Response('Not Found.', { status: 404 }));
 
